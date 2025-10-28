@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from openai import OpenAI
 from pydantic import BaseModel
+from pipefy_service import criar_ou_atualizar_lead
 
 load_dotenv()
 
@@ -15,9 +16,7 @@ app = FastAPI()
 ASSISTANT_ID = "asst_wJzaH4297BnMmmoqeEoD2xep"
 
 def registrarLead(nome: str, email: str, empresa: str, necessidade: str):
-    print("--- FERRAMENTA ACIONADA: registrarLead ---")
-    print(f"Nome: {nome}, E-mail: {email}, Empresa: {empresa}, Necessidade: {necessidade}")
-    return f"Lead '{nome}' registrado com sucesso."
+    return criar_ou_atualizar_lead(nome, email, empresa, necessidade)
 
 def oferecerHorarios():
     print("--- FERRAMENTA ACIONADA: oferecerHorarios ---")
