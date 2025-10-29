@@ -1,26 +1,24 @@
 import os
 import time
 import json
-import logging # 1. Importa a biblioteca de logging
+import logging
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from openai import OpenAI, BadRequestError
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
-# Meus serviços
 from pipefy_service import criar_ou_atualizar_lead
 from agenda_service import buscar_horarios_disponiveis, agendar_reuniao_calendly
 
-# 2. Configura o logger básico
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 load_dotenv()
 client = OpenAI()
 app = FastAPI()
 
-# Configuração do CORS
-origins = ["http://localhost:5173"]
+origins = ["http://localhost:5173",
+            "https://desafio-elite-dev-ia-dun.vercel.app/"
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -29,9 +27,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-ASSISTANT_ID = "asst_wJzaH4297BnMmmoqeEoD2xep" # Use a sua ID de assistente
+ASSISTANT_ID = "asst_wJzaH4297BnMmmoqeEoD2xep"
 
-# --- Funções "Ponte" para o mapa de ferramentas ---
 def registrarLead(nome: str, email: str, empresa: str, necessidade: str):
     return criar_ou_atualizar_lead(nome, email, empresa, necessidade)
 
@@ -44,7 +41,6 @@ available_tools = {
     "agendarReuniao": agendarReuniao,
 }
 
-# --- Endpoints da API ---
 @app.get("/")
 def read_root():
     return {"message": "Servidor do Assistente SDR está funcionando"}
