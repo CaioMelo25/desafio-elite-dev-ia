@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from openai import OpenAI
 from pydantic import BaseModel
 from pipefy_service import criar_ou_atualizar_lead
+from agenda_service import buscar_horarios_disponiveis, agendar_reuniao_calendly
 
 load_dotenv()
 
@@ -23,14 +24,12 @@ def oferecerHorarios():
     return "Os horários disponíveis são: 14:00, 15:00 e 16:00 de amanhã."
 
 def agendarReuniao(horario_escolhido: str, nome: str, email: str):
-    print("--- FERRAMENTA ACIONADA: agendarReuniao ---")
-    print(f"Agendando para {nome} ({email}) no horário: {horario_escolhido}")
-    return f"Reunião agendada com sucesso para {horario_escolhido}. O link é https://reuniao.exemplo.com/123"
+    return agendar_reuniao_calendly(horario_escolhido, nome, email)
 
 available_tools = {
     "registrarLead": registrarLead,
-    "oferecerHorarios": oferecerHorarios,
-    "agendarReuniao": agendarReuniao,
+    "oferecerHorarios": buscar_horarios_disponiveis, 
+    "agendarReuniao": agendarReuniao, 
 }
 
 

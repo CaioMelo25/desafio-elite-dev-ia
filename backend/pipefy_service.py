@@ -20,8 +20,7 @@ def criar_ou_atualizar_lead(nome: str, email: str, empresa: str, necessidade: st
         "Content-Type": "application/json",
     }
 
-    # --- PASSO 1: CRIAR O CARD (Funciona) ---
-    print(f"--- Serviço Pipefy (Passo 1): Criando card para o lead {nome} ---")
+    print(f"--- Serviço Pipefy: Criando card para o lead {nome} ---")
     
     create_mutation_query = f"""
     mutation {{
@@ -51,14 +50,11 @@ def criar_ou_atualizar_lead(nome: str, email: str, empresa: str, necessidade: st
         print(f"Card criado com sucesso. ID: {card_id}")
 
     except requests.exceptions.RequestException as e:
-        print(f"Erro de conexão com a API do Pipefy (fase 1): {e}")
+        print(f"Erro de conexão com a API do Pipefy: {e}")
         return "Não foi possível conectar ao CRM para registrar o lead."
 
-    # --- PASSO 2: ATUALIZAR O CARD (Versão Finalíssima e Corrigida) ---
-    print(f"--- Serviço Pipefy (Passo 2): Atualizando card {card_id} com os detalhes ---")
+    print(f"--- Serviço Pipefy: Atualizando card {card_id} com os detalhes ---")
 
-    # CORREÇÃO: Renomeamos o argumento principal de 'fields' para 'values',
-    # conforme a mensagem de erro nos instruiu.
     update_mutation_query = f"""
     mutation {{
       updateFieldsValues(input: {{
