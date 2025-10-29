@@ -37,7 +37,7 @@ const sendMessage = async () => {
   isLoading.value = true;
 
   try {
-    const response = await axios.post('https://desafio-elite-dev-ia.onrender.com', {
+    const response = await axios.post('https://desafio-elite-dev-ia.onrender.com/chat', {
       message: userMessage,
       thread_id: threadId.value
     });
