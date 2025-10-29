@@ -16,10 +16,8 @@ load_dotenv()
 client = OpenAI()
 app = FastAPI()
 
-origins = [
-    "http://localhost:5173",
-    "https://desafio-elite-dev-ia-dun.vercel.app/" 
-]
+origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
