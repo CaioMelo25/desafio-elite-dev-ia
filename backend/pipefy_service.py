@@ -1,6 +1,9 @@
 import os
 import requests
 import json
+import logging
+
+log = logging.getLogger(__name__)
 
 PIPEFY_API_URL = "https://api.pipefy.com/graphql"
 
@@ -12,7 +15,7 @@ def criar_ou_atualizar_lead(nome: str, email: str, empresa: str, necessidade: st
     pipefy_pipe_id = os.getenv("PIPEFY_PIPE_ID")
 
     if not pipefy_api_key or not pipefy_pipe_id:
-        print("ERRO: As variáveis PIPEFY_API_KEY ou PIPEFY_PIPE_ID não foram encontradas.")
+        log.error("Variáveis de ambiente do Pipefy não foram encontradas.")
         return "Erro de configuração no servidor."
 
     headers = {
@@ -20,7 +23,7 @@ def criar_ou_atualizar_lead(nome: str, email: str, empresa: str, necessidade: st
         "Content-Type": "application/json",
     }
 
-    print(f"--- Serviço Pipefy: Criando card para o lead {nome} ---")
+    log.info(f"Iniciando criação de card no Pipefy para o lead: {nome}")
     
     create_mutation_query = f"""
     mutation {{
@@ -35,6 +38,7 @@ def criar_ou_atualizar_lead(nome: str, email: str, empresa: str, necessidade: st
     }}
     """
     
+    card_id = None
     try:
         response = requests.post(
             PIPEFY_API_URL, headers=headers, data=json.dumps({"query": create_mutation_query})
@@ -43,17 +47,21 @@ def criar_ou_atualizar_lead(nome: str, email: str, empresa: str, necessidade: st
         response_data = response.json()
 
         if "errors" in response_data:
-            print(f"Erro da API do Pipefy ao criar o card: {response_data['errors']}")
+            log.error(f"Erro da API do Pipefy ao criar o card: {response_data['errors']}")
             return "Ocorreu um erro ao registrar o lead (fase 1)."
 
         card_id = response_data['data']['createCard']['card']['id']
-        print(f"Card criado com sucesso. ID: {card_id}")
+        log.info(f"Card base criado com sucesso. ID: {card_id}")
 
     except requests.exceptions.RequestException as e:
-        print(f"Erro de conexão com a API do Pipefy: {e}")
+        log.error(f"Erro de conexão com a API do Pipefy na criação do card: {e}")
         return "Não foi possível conectar ao CRM para registrar o lead."
 
-    print(f"--- Serviço Pipefy: Atualizando card {card_id} com os detalhes ---")
+    if not card_id:
+        log.error("A criação do card não retornou um ID. Abortando a atualização.")
+        return "Ocorreu um erro ao obter o ID do lead registrado."
+
+    log.info(f"Atualizando o card {card_id} com os detalhes completos do lead.")
 
     update_mutation_query = f"""
     mutation {{
@@ -80,12 +88,12 @@ def criar_ou_atualizar_lead(nome: str, email: str, empresa: str, necessidade: st
         response_data = response.json()
 
         if "errors" in response_data:
-            print(f"Erro da API do Pipefy ao atualizar o card: {response_data['errors']}")
+            log.error(f"Erro da API do Pipefy ao atualizar o card {card_id}: {response_data['errors']}")
             return "Ocorreu um erro ao registrar o lead (fase 2)."
 
-        print(f"Card {card_id} atualizado com sucesso com todos os detalhes.")
+        log.info(f"Card {card_id} atualizado com sucesso com todos os detalhes.")
         return f"Lead para '{nome}' foi registrado com sucesso no CRM."
 
     except requests.exceptions.RequestException as e:
-        print(f"Erro de conexão com a API do Pipefy (fase 2): {e}")
+        log.error(f"Erro de conexão com a API do Pipefy na atualização do card {card_id}: {e}")
         return "Não foi possível conectar ao CRM para atualizar o lead."
