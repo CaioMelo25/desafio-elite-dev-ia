@@ -7,12 +7,26 @@ from openai import OpenAI
 from pydantic import BaseModel
 from pipefy_service import criar_ou_atualizar_lead
 from agenda_service import buscar_horarios_disponiveis, agendar_reuniao_calendly
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
 client = OpenAI()
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 ASSISTANT_ID = "asst_wJzaH4297BnMmmoqeEoD2xep"
 
